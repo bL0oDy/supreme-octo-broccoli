@@ -16,14 +16,10 @@ set(SOURCE_FILE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 file(GLOB_RECURSE HEADER_FILES "${HEADER_FILE_PATH}/*")
 
-set(LIB_SOURCE_FILES 
-	
-)
-
-set(EXE_SOURCE_FILES
+set(SOURCE_FILES
 	src/main.cpp
 )
 
-add_executable(${PROJECT_NAME} ${LIB_SOURCE_FILES} ${HEADER_FILES})
+add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
