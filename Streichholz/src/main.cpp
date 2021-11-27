@@ -113,7 +113,7 @@ void UpdateExecutionState(ExecutionState& currentState)
     currentState = (ExecutionState)(((int)currentState + 1) % EXECUTION_STATE_AMOUNT);
 }
 
-void ExecuteMove(ExecutionState currentState, int& remainingSticks)
+void ExecuteMove(ExecutionState const currentState, int& remainingSticks)
 {
     switch (currentState)
     {
@@ -127,7 +127,7 @@ void ExecuteMove(ExecutionState currentState, int& remainingSticks)
     }
 }
 
-void DisplayGameReport(ExecutionState currentState)
+void DisplayGameReport(ExecutionState const currentState)
 {
     std::cout << "==== SPIELENDE ====" << std::endl;
 
