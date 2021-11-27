@@ -4,13 +4,20 @@
 #include <string>
 #include <windows.h>
 
-int const INITIAL_STICK_AMOUNT        = 20;
-int const MINIMUM_DEFAULT_INPUT_VALUE = 1;
-int const MAXIMUM_DEFAULT_INPUT_VALUE = 3;
+int const INITIAL_STICK_AMOUNT         = 20;   // Initial amount of sticks
+int const MINIMUM_DEFAULT_INPUT_VALUE  = 1;    // Minimum amount of sticks to be taken at once
+int const MAXIMUM_DEFAULT_INPUT_VALUE  = 3;    // Maximum amount of sticks to be taken at once
+int const COMPUTER_CHOICE_DISPLAY_TIME = 2000; // Sleep Time after each round, enough time to read the computers move
+int const EXECUTION_STATE_AMOUNT       = 2;    // Amount of different execution states
+
+enum class ExecutionState : int
+{
+    PlayerMove   = 0,
+    ComputerMove = 1
+};
 
 inline void ClearScreen()
 {
-    // windows-specific-code
     char fill = ' ';
     COORD tl  = { 0, 0 };
     CONSOLE_SCREEN_BUFFER_INFO s;
@@ -22,17 +29,19 @@ inline void ClearScreen()
     SetConsoleCursorPosition(console, tl);
 }
 
-inline bool IsNumber(const std::string& s)
+inline bool IsNumber(std::string const& text)
 {
-    std::string::const_iterator it = s.begin();
-    while (it != s.end() && std::isdigit(*it))
+    std::string::const_iterator it = text.begin();
+
+    while (it != text.end() && std::isdigit(*it))
     {
         ++it;
     }
-    return !s.empty() && (it == s.end());
+
+    return !text.empty() && (it == text.end());
 }
 
-inline bool ReadIntegerInput(int& inputValue)
+inline bool TryReadIntegerInput(int& inputValue)
 {
     std::string inputLine;
     std::getline(std::cin, inputLine);
@@ -44,7 +53,7 @@ inline bool ReadIntegerInput(int& inputValue)
 inline void DisplayGameStatus(int const& remainingSticks)
 {
     ClearScreen();
-    std::cout << "Es sind noch " << std::to_string(remainingSticks) << " auf dem Stapel.";
+    std::cout << "Es liegen noch " << std::to_string(remainingSticks) << " auf dem Stapel." << std::endl;
 }
 
 inline void ExecutePlayerMove(int& remainingSticks)
@@ -54,9 +63,13 @@ inline void ExecutePlayerMove(int& remainingSticks)
 
     do
     {
-        std::cout << std::endl
-                  << "Bitte zwischen " << std::to_string(MINIMUM_DEFAULT_INPUT_VALUE) << " und " << std::to_string(maxInputValue) << " Streichh\x94lzer ziehen: ";
-    } while (!ReadIntegerInput(inputValue) && !(inputValue >= MINIMUM_DEFAULT_INPUT_VALUE && inputValue <= maxInputValue));
+        std::cout << "Bitte zwischen "
+                  << std::to_string(MINIMUM_DEFAULT_INPUT_VALUE)
+                  << " und "
+                  << std::to_string(maxInputValue)
+                  << " Streichh\x94lzer ziehen: ";
+
+    } while (!TryReadIntegerInput(inputValue) && !(inputValue >= MINIMUM_DEFAULT_INPUT_VALUE && inputValue <= maxInputValue));
 
     remainingSticks -= inputValue;
 }
@@ -77,33 +90,57 @@ inline void ExecuteComputerMove(int& remainingSticks)
     std::cout << "Der Computer hat " << std::to_string(computerValue) << " Streichh\x94lzer gezogen." << std::endl;
 
     remainingSticks -= computerValue;
+
+    Sleep(COMPUTER_CHOICE_DISPLAY_TIME);
 }
 
+void DisplayGameReport(ExecutionState currentState)
+{
+    std::cout << "==== SPIELENDE ====" << std::endl;
+
+    switch (currentState)
+    {
+    case ExecutionState::PlayerMove:
+        std::cout << "Sie haben gewonnen!";
+        break;
+    case ExecutionState::ComputerMove:
+        std::cout << "Sie haben verloren!";
+        break;
+    }
+}
+
+void UpdateExecutionState(ExecutionState& currentState)
+{
+    currentState = (ExecutionState)(((int)currentState + 1) % EXECUTION_STATE_AMOUNT);
+}
+
+/*
+	Mainprogram uses methods only
+	Trying to improve readability
+	Logic is shifted to methods
+*/
 void main(int const argc, char** const argv)
 {
-    int remainingSticks = INITIAL_STICK_AMOUNT;
+    ExecutionState currentState = ExecutionState::PlayerMove;
+    int remainingSticks         = INITIAL_STICK_AMOUNT;
 
     do
     {
         DisplayGameStatus(remainingSticks);
-        ExecutePlayerMove(remainingSticks);
 
-        if (remainingSticks <= 0)
+        switch (currentState)
         {
-            std::cout << "==== SPIELENDE ====" << std::endl;
-            std::cout << "Sie haben verloren !" << std::endl;
+        case ExecutionState::PlayerMove:
+            ExecutePlayerMove(remainingSticks);
+            break;
+
+        case ExecutionState::ComputerMove:
+            ExecuteComputerMove(remainingSticks);
             break;
         }
 
-        ExecuteComputerMove(remainingSticks);
-
-        if (remainingSticks <= 0)
-        {
-            std::cout << "==== SPIELENDE ====" << std::endl;
-            std::cout << "Sie haben gewonnen !" << std::endl;
-            break;
-        }
-
-        Sleep(2000);
+        UpdateExecutionState(currentState);
     } while (remainingSticks > 0);
+
+    DisplayGameReport(currentState);
 }
