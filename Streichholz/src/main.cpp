@@ -1,14 +1,12 @@
 #include <cctype>
-#include <cstdlib>
-#include <ctime>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <windows.h>
 
-int const INITIAL_STICK_AMOUNT        = 50;
+int const INITIAL_STICK_AMOUNT        = 20;
 int const MINIMUM_DEFAULT_INPUT_VALUE = 1;
-int const MAXIMUM_DEFAULT_INPUT_VALUE = 5;
+int const MAXIMUM_DEFAULT_INPUT_VALUE = 3;
 
 inline void ClearScreen()
 {
@@ -60,8 +58,6 @@ inline void ExecutePlayerMove(int& remainingSticks)
                   << "Bitte zwischen " << std::to_string(MINIMUM_DEFAULT_INPUT_VALUE) << " und " << std::to_string(maxInputValue) << " Streichh\x94lzer ziehen: ";
     } while (!ReadIntegerInput(inputValue) && !(inputValue >= MINIMUM_DEFAULT_INPUT_VALUE && inputValue <= maxInputValue));
 
-    std::cout << std::endl;
-
     remainingSticks -= inputValue;
 }
 
@@ -75,7 +71,7 @@ inline void ExecuteComputerMove(int& remainingSticks)
     }
     else
     {
-        computerValue = MINIMUM_DEFAULT_INPUT_VALUE + std::rand() / ((RAND_MAX + MINIMUM_DEFAULT_INPUT_VALUE) / MAXIMUM_DEFAULT_INPUT_VALUE);
+        computerValue = std::_Min_value(MAXIMUM_DEFAULT_INPUT_VALUE, remainingSticks - 2 * MINIMUM_DEFAULT_INPUT_VALUE - MAXIMUM_DEFAULT_INPUT_VALUE);
     }
 
     std::cout << "Der Computer hat " << std::to_string(computerValue) << " Streichh\x94lzer gezogen." << std::endl;
@@ -85,7 +81,6 @@ inline void ExecuteComputerMove(int& remainingSticks)
 
 void main(int const argc, char** const argv)
 {
-    std::srand(std::time(nullptr));
     int remainingSticks = INITIAL_STICK_AMOUNT;
 
     do
