@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cctype>
 #include <iostream>
 #include <sstream>
@@ -73,7 +74,7 @@ inline void DisplayGameStatus(int const& remainingSticks)
 inline void ExecutePlayerMove(int& remainingSticks)
 {
     int inputValue          = 0;
-    int const maxInputValue = std::_Min_value(remainingSticks, MAXIMUM_DEFAULT_INPUT_VALUE);
+    int const maxInputValue = std::min(remainingSticks, MAXIMUM_DEFAULT_INPUT_VALUE);
 
     do
     {
@@ -94,11 +95,11 @@ inline void ExecuteComputerMove(int& remainingSticks)
 
     if (remainingSticks <= (MAXIMUM_DEFAULT_INPUT_VALUE + MINIMUM_DEFAULT_INPUT_VALUE))
     {
-        computerValue = std::_Max_value(remainingSticks - MINIMUM_DEFAULT_INPUT_VALUE, MINIMUM_DEFAULT_INPUT_VALUE);
+        computerValue = std::max(remainingSticks - MINIMUM_DEFAULT_INPUT_VALUE, MINIMUM_DEFAULT_INPUT_VALUE);
     }
     else
     {
-        computerValue = std::_Min_value(MAXIMUM_DEFAULT_INPUT_VALUE, remainingSticks - 2 * MINIMUM_DEFAULT_INPUT_VALUE - MAXIMUM_DEFAULT_INPUT_VALUE);
+        computerValue = std::min(MAXIMUM_DEFAULT_INPUT_VALUE, remainingSticks - 2 * MINIMUM_DEFAULT_INPUT_VALUE - MAXIMUM_DEFAULT_INPUT_VALUE);
     }
 
     std::cout << "Der Computer hat " << std::to_string(computerValue) << " Streichh\x94lzer gezogen." << std::endl;
@@ -145,7 +146,7 @@ void DisplayGameReport(ExecutionState const currentState)
 /*
 	Mainprogram uses methods only, trying to improve readability
 */
-void main(int const argc, char** const argv)
+int main(int const argc, char** const argv)
 {
     ExecutionState currentState = ExecutionState::PlayerMove;
     int remainingSticks         = INITIAL_STICK_AMOUNT;
@@ -159,4 +160,5 @@ void main(int const argc, char** const argv)
     } while (remainingSticks > 0);
 
     DisplayGameReport(currentState);
+    return 0;
 }
